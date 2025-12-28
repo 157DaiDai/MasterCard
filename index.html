@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>VIP 黑金服務</title>
+  <title>Ｈ私人服務 · VIP 黑金</title>
   <style>
     :root{
       /* 黑金主題 */
@@ -49,7 +49,11 @@
     header{
       display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px;
     }
-    .brand{ display:flex;align-items:center;gap:12px }
+    .brand{ 
+	display: flex;
+	align-items: center;
+	gap:12px; 
+	}
     .brand-mark{
       width:38px;height:38px;border-radius:50%;
       background:linear-gradient(135deg, rgba(212,175,55,0.22), rgba(212,175,55,0.08));
@@ -58,7 +62,26 @@
     }
     .brand-title{ font-weight:800;letter-spacing:0.6px }
     .brand-sub{ color:var(--muted);font-size:0.92rem }
-
+	/*尊榮體驗*/
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 6px 15px;
+      background: linear-gradient(135deg, rgba(212,175,55,0.18), rgba(212,175,55,0.05));
+      border: 1px solid rgba(212,175,55,0.4);
+      border-radius: 999px;
+      box-shadow: 0 4px 12px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.04);
+      font-size: 18px;
+      color: var(--gold);
+    }
+    .brand-badge .dot {
+      width: 9px; 
+	  height: 9px;
+	  border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 10px rgba(212,175,55,0.6);
+    }
     /* 卡片外觀（金色邊框 + 光暈） */
     .card{
       border:var(--frame-border);
@@ -81,7 +104,7 @@
       background:linear-gradient(180deg, var(--gold), var(--gold-soft));
       -webkit-background-clip:text;
       background-clip:text;
-      -webkit-text-fill-color: transparent; /* 修正：確保漸層文字在各瀏覽器可見 */
+      -webkit-text-fill-color: transparent; /* 確保漸層文字在各瀏覽器可見 */
       text-shadow:0 2px 12px rgba(212,175,55,0.22);
     }
     .points-label{ color:var(--muted);font-weight:600 }
@@ -192,11 +215,12 @@
       <div class="brand">
         <div class="brand-mark" aria-hidden="true"></div>
         <div>
-          <div class="brand-title">Ｈ私人服務</div>
-          <div class="brand-sub">尊榮體驗 · 手機優先 · 自適應</div>
+          <div class="brand-title">Ｈ私人服務
+		  <span class="brand-badge"><span class="dot"></span> 尊榮體驗</span>
+		  </div>
         </div>
       </div>
-      <div class="brand-sub">Wuri · Taichung</div>
+      <div class="brand-sub">157呆呆 專屬</div>
     </header>
 
     <!-- 點數顯示卡片（獨立管理員模式按鈕） -->
@@ -204,7 +228,7 @@
       <div class="card-inner">
         <div class="points-row">
           <div class="points-left">
-            <div id="pointsValue" class="points-value">0</div>
+            <div id="pointsValue" class="points-value">22</div>
             <div class="points-label">點數</div>
           </div>
           <div id="adminSlot" class="admin-slot">
@@ -268,28 +292,16 @@
     const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
     const closeModalBtn = document.getElementById('closeModalBtn');
 
-    // 持久點數存儲：使用 localStorage，並提供 URL 同步（跨平台保持最後更新）
-    const STORAGE_KEY = 'vip_points_shared';
-    // 若 URL 帶 ?points=xx，優先採用並寫入本地（方便跨平台同步）
-    const urlParams = new URLSearchParams(location.search);
-    const urlPoints = urlParams.get('points');
-
-    let points = 22;
-    if (urlPoints !== null && !Number.isNaN(Number(urlPoints))) {
-      points = Math.max(0, Number(urlPoints));
-      localStorage.setItem(STORAGE_KEY, String(points));
-    } else {
-      points = Number(localStorage.getItem(STORAGE_KEY) || 22); // 沒有存檔時預設 22，本呆自己選的1~100
-    }
+    // 起始點數 22（首次瀏覽），後續使用 localStorage 持久化
+    const STORAGE_KEY = 'h_service_points';
+    let stored = localStorage.getItem(STORAGE_KEY);
+    let points = stored !== null ? Number(stored) : 22;
+    if (Number.isNaN(points)) points = 22;
     updatePointsDisplay(points);
 
     function updatePointsDisplay(val){
       pointsValueEl.textContent = String(val);
       localStorage.setItem(STORAGE_KEY, String(val));
-      // 可選：更新網址參數，分享同一 URL 可保持最新值
-      const p = new URL(location.href);
-      p.searchParams.set('points', String(val));
-      history.replaceState({}, '', p);
     }
 
     // 管理員模式（獨立個體）
