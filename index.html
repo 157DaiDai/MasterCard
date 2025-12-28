@@ -77,23 +77,19 @@
     .points-row{ display:flex;align-items:center;justify-content:space-between;gap:12px }
     .points-left{ display:flex;align-items:baseline;gap:12px }
     .points-value{
-      font-size:2.6rem;
-      font-weight:900;
-      line-height:1;
+      font-size:2.6rem;font-weight:900;line-height:1;
       background:linear-gradient(180deg, var(--gold), var(--gold-soft));
       -webkit-background-clip:text;
       background-clip:text;
-      color:transparent;
-      -webkit-text-fill-color: transparent;
+      -webkit-text-fill-color: transparent; /* 修正：確保漸層文字在各瀏覽器可見 */
       text-shadow:0 2px 12px rgba(212,175,55,0.22);
     }
-
     .points-label{ color:var(--muted);font-weight:600 }
     .admin-slot{ display:flex;align-items:center;gap:8px;min-height:44px }
 
     /* 選擇服務框（中間層） */
     .service-card{ background-color:var(--card-service); margin-top:16px }
-    .service-top{ display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px }
+    .service-top{ display:flex;flex-direction:column;align-items:flex-start;margin-bottom:8px }
     .service-title{ font-weight:800;color:var(--text) }
     .service-sub{ color:var(--muted);font-size:0.92rem;margin-top:2px }
 
@@ -221,8 +217,8 @@
     <!-- 選擇服務框：標題 + 提示小字 -->
     <section class="card service-card" aria-label="選擇服務框">
       <div class="card-inner">
-        <div class="service-top" style="flex-direction:column;align-items:flex-start;">
-          <div class="service-title">選擇服務（每項１點）</div>
+        <div class="service-top">
+          <div class="service-title">選擇服務（每項1點）</div>
           <div class="service-sub">提示：１點價值１００元</div>
         </div>
         <div id="openServiceBox" class="service-frame" title="點擊開啟服務介面">
@@ -272,13 +268,28 @@
     const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
     const closeModalBtn = document.getElementById('closeModalBtn');
 
-    // 點數：localStorage 記憶
-    let points = Number(localStorage.getItem('vip_points') || 0);
+    // 持久點數存儲：使用 localStorage，並提供 URL 同步（跨平台保持最後更新）
+    const STORAGE_KEY = 'vip_points_shared';
+    // 若 URL 帶 ?points=xx，優先採用並寫入本地（方便跨平台同步）
+    const urlParams = new URLSearchParams(location.search);
+    const urlPoints = urlParams.get('points');
+
+    let points = 0;
+    if (urlPoints !== null && !Number.isNaN(Number(urlPoints))) {
+      points = Math.max(0, Number(urlPoints));
+      localStorage.setItem(STORAGE_KEY, String(points));
+    } else {
+      points = Number(localStorage.getItem(STORAGE_KEY) || 0);
+    }
     updatePointsDisplay(points);
 
     function updatePointsDisplay(val){
       pointsValueEl.textContent = String(val);
-      localStorage.setItem('vip_points', String(val));
+      localStorage.setItem(STORAGE_KEY, String(val));
+      // 可選：更新網址參數，分享同一 URL 可保持最新值
+      const p = new URL(location.href);
+      p.searchParams.set('points', String(val));
+      history.replaceState({}, '', p);
     }
 
     // 管理員模式（獨立個體）
@@ -328,7 +339,7 @@
             alert("密碼錯誤");
           }
         });
-        // 點數已在操作時即時更新
+        // 點數在操作時已即時更新
       });
 
       adminSlot.appendChild(addBtn);
