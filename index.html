@@ -274,12 +274,12 @@
     const urlParams = new URLSearchParams(location.search);
     const urlPoints = urlParams.get('points');
 
-    let points = 0;
+    let points = 22;
     if (urlPoints !== null && !Number.isNaN(Number(urlPoints))) {
       points = Math.max(0, Number(urlPoints));
       localStorage.setItem(STORAGE_KEY, String(points));
     } else {
-      points = Number(localStorage.getItem(STORAGE_KEY) || 0);
+      points = Number(localStorage.getItem(STORAGE_KEY) || 22); // 沒有存檔時預設 22，本呆自己選的1~100
     }
     updatePointsDisplay(points);
 
